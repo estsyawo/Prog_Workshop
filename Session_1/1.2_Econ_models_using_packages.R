@@ -193,6 +193,8 @@ confint(jour_lm, parm = 2)
 # 2. Run a negative binomial regression : outcome - floor(height), covariate - weight
 # 3. Run a quantile regression model at the following quantiles 
 #    tau = c(0.2, 0.4, 0.5, 0.6, 0.8)
+# 4. Run the gamma regression  of "height" on "weight". 
+# Hint: use the "Gamma" family in glm( )
 
 
 
