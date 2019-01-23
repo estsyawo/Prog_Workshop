@@ -3,13 +3,14 @@
 #============================================================================>
 # To set working directory to the source file folder:
 # Session -> Set working directory -> To Source file location
-# setwd("~/Documents/Temple Courses/Spring 2019-R_Programming_Workshop")
+# setwd("~/Dropbox/Prog_Codes/Prog_Workshop/Session_1")
 #============================================================================>
 ## Creating, indexing, subsetting and operating vectors
 
 # Create a vector using concatenation
 
 z = 1 # assign a scalar value to z
+z # print out value of z to the console
 
 v = c(0,1,7,-2) # create a vector v
 

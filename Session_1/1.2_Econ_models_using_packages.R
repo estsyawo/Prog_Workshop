@@ -32,6 +32,8 @@ library("AER")
 # We allow for a quadratic term to allow for decreasing/increasing returns
 # to age
 
+dat<- read.csv("dat.csv",header = T,sep = " ") # load data set
+
 reg1<- lm(dat$nonwife~dat$age + I(dat$age^2)+dat$education+dat$experience)
 summary(reg1)
 
@@ -184,8 +186,13 @@ confint(jour_lm, parm = 2)
 #============================================================================>
 
 # Exercises:
+# use data set "women" in the pre-loaded package "datasets"
+# Use "height" as the outcome and "weight" as the covariate
 
-# 1. Run a poisson regression
-# 2. Run a negative binomial regression
-# 3. 
-# load the following data women in the pre-loaded
+# 1. Run a poisson regression: outcome - floor(height), covariate - weight
+# 2. Run a negative binomial regression : outcome - floor(height), covariate - weight
+# 3. Run a quantile regression model at the following quantiles 
+#    tau = c(0.2, 0.4, 0.5, 0.6, 0.8)
+
+
+
