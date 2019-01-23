@@ -1,0 +1,115 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[left=0.8in,top=1in,bottom=1in]{geometry}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{multirow}
+%\usepackage{natbib}
+\usepackage[bibstyle=numeric, citestyle=authoryear, natbib=true,doi=false, url=true, backend=biber, maxbibnames=6, maxcitenames=4, uniquelist=false, uniquename=false, sorting=nyt]{biblatex}
+\addbibresource{Paper.bib}
+
+\begin{document}
+	\title{R Programming for Economics \& Statistics}
+	\author{Emmanuel Selorm Tsyawo\footnote{email: estsyawo@temple.edu} \\ \scriptsize Temple University, Department of Economics}
+	\date{\today}
+	\maketitle
+
+	R is the most comprehensive statistical analysis package available. It incorporates all of the standard statistical tests, models, and analyses, as well as providing a comprehensive language for managing and manipulating data. New technology and ideas often appear first in R. \\
+\textit{- Source: \url{http://analyticstrainings.com/?p=101}} 
+	\section*{Why learn R ?}
+
+	\begin{enumerate}[label=(\alph*)]
+		\item R is free and open source; reviewed by many renowned international statisticians and computational scientists.
+		
+		\item A lot of documentation on-line; someone has already faced the problem you are facing and the solution is out there online.
+		
+		\item Greater flexibility in programming; you can avoid constraints with syntax-based programming languages.
+		
+		\item Numerous contributors of packages all over the world - an exponential growth in functionalities and accessibility
+		
+		\item Fast and lean on memory; R requires little memory to run because you only load packages you need. This allows R to execute codes rapidly.
+		
+		\item New books for R are constantly emerging. eg. Springer Use R! series, so you never lack adequate resources. 
+		
+	\end{enumerate}
+The workshop comprises three sessions, each per meeting.
+
+	\section{Session I}
+	\subsection{Basics of R}
+	The basics of R are required for creating and handling data objects and building an R programme.\\
+	\textit{Reference: \cite[Chapters 2,3 \& 4]{bloomfield2014using}}
+	\begin{enumerate}[label=(\alph*)]
+		\item Creating, indexing, sub-setting and operating vectors
+		\item Creating, indexing, sub-setting and operating matrices
+		\item Creating, indexing, sub-setting and operating lists
+		\item Handling strings and lists
+		\item Loading data into R
+		\item Data manipulation in R
+		\item Plotting data in R
+		\item Logicals (True/False checks)
+		\item If/else statements 
+		\item Loops - while loop, for loop, 
+		\item Writing functions in R
+		\item Generating random numbers and handling distributions/densities
+	\end{enumerate}
+	
+	\subsection{Econometric models using R packages}
+	R has a number of packages that enable the estimation of many econometric and statistical models. In this section, we explore functions in available packages for econometric and statistical models. Recall, a key here is the interpretability of results and not mere estimation. 
+	\\ (Reference: \cite[Chapters 3, 5, \& 7]{kleiber2008applied} and \cite[Chapter 12]{wooldridge2010econometric})
+	
+	\begin{enumerate}[label=(\alph*)]
+		\item Installing and using functions in R packages
+		\item Ordinary least squares
+		\item Logit/Probit
+		\item Regression Models for Count Data 
+		\item Quantile regression
+		\item The Bootstrap
+	\end{enumerate}
+	
+	\section{Session II}
+
+	\subsection{Numerical Methods and Optimisation}
+	This section serves to illustrate some functionalities in R for solving mathematical problems numerically. The main focus is on solving non-linear problems where analytical solutions are infeasible. \\(Reference: \cite{bloomfield2014using})
+	
+	\begin{enumerate}[label=(\alph*)]
+		\item Solving a system of linear equations
+		\item Zeros of a function
+		\item Non-linear systems of equations
+		\item Numerical differentiation and integration
+		\item Unconstrained optimisation - one- \& multi-dimensional optimisation
+		\item Constrained optimisation - one- \& multi-dimensional optimisation with equality and non-negativity constraints
+	\end{enumerate}
+	
+	\section{Session III}
+	\subsection{Programming your own model}
+	In this last section, we illustrate, via examples, the programming of one's own model when there are unavailable functionalities. We also consider some machine learning models (if time permits).\\
+	(References: Own codes)
+	
+	\begin{enumerate}[label=(\alph*)]
+		\item OLS with heteroskedasticity-robust standard errors
+		\item Writing your own maximum likelihood
+		\item Quantile regression via the asymmetric Laplace density likelihood
+		\item $ \ell_1 $ penalisation of the objective function, - the Lasso
+	\end{enumerate}
+	
+	\section*{Useful references for further practice}
+	\begin{enumerate}[label=(\alph*)]
+		\item \cite{croissant2018panel} - a very good text on panel data models in R
+		\item \cite{james2013introduction} - This text is a good introduction to statistical/machine learning
+		\item  \cite{albert2009bayesian} - Are you a believer in the bayesian paradigm? Get on board!
+		\item \cite{shumway2006time} - This book strikes a beautiful balance between the theory of Time series analysis and programming time series models in R.
+	\end{enumerate}
+	
+	\section*{Downloads}
+	The following software applications are required for the workshop. Download and install them for the workshop. Also, check for the compatibility with the operating system.
+	\begin{itemize}
+		\item \url{https://cran.r-project.org/bin/windows/base/} - Download and install R
+		\item \url{https://www.rstudio.com/products/rstudio/download/} - Download and install Rstudio
+	\end{itemize}
+\end{document}

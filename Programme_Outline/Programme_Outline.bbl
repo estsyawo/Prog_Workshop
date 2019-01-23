@@ -1,0 +1,212 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 2.7 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \sortlist[entry]{nyt/global/}
+    \entry{albert2009bayesian}{book}{}
+      \name{author}{1}{}{%
+        {{hash=016761922b08e330692770c9ecde3d35}{%
+           family={Albert},
+           family_i={A\bibinitperiod},
+           given={Jim},
+           given_i={J\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Springer Science \& Business Media}%
+      }
+      \strng{namehash}{016761922b08e330692770c9ecde3d35}
+      \strng{fullhash}{016761922b08e330692770c9ecde3d35}
+      \field{sortinit}{A}
+      \field{sortinithash}{b685c7856330eaee22789815b49de9bb}
+      \field{labelyear}{2009}
+      \field{datelabelsource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Bayesian computation with R}
+      \field{year}{2009}
+    \endentry
+    \entry{bloomfield2014using}{book}{}
+      \name{author}{1}{}{%
+        {{hash=5370ae434af0431d3ee81189db8f5e35}{%
+           family={Bloomfield},
+           family_i={B\bibinitperiod},
+           given={Victor\bibnamedelima A},
+           given_i={V\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {CRC Press}%
+      }
+      \strng{namehash}{5370ae434af0431d3ee81189db8f5e35}
+      \strng{fullhash}{5370ae434af0431d3ee81189db8f5e35}
+      \field{sortinit}{B}
+      \field{sortinithash}{4ecbea03efd0532989d3836d1a048c32}
+      \field{labelyear}{2014}
+      \field{datelabelsource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Using R for numerical analysis in science and engineering}
+      \field{year}{2014}
+    \endentry
+    \entry{croissant2018panel}{book}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{2}{}{%
+        {{hash=2475d5bed2d8345c0fa76ae06ba6685f}{%
+           family={Croissant},
+           family_i={C\bibinitperiod},
+           given={Yves},
+           given_i={Y\bibinitperiod}}}%
+        {{hash=2b65930584254db8d0fe11c2ffe0bae7}{%
+           family={Millo},
+           family_i={M\bibinitperiod},
+           given={Giovanni},
+           given_i={G\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Wiley Online Library}%
+      }
+      \strng{namehash}{bcf204486132bfbb33ee79bd87559135}
+      \strng{fullhash}{8c644ce840b2b251eedcf1883d730218}
+      \field{sortinit}{C}
+      \field{sortinithash}{59f25d509f3381b07695554a9f35ecb2}
+      \field{labelyear}{2018}
+      \field{datelabelsource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Panel Data Econometrics with R}
+      \field{year}{2018}
+    \endentry
+    \entry{james2013introduction}{book}{}
+      \name{author}{4}{}{%
+        {{hash=df184c5fa522ac8a515ec4de13aef234}{%
+           family={James},
+           family_i={J\bibinitperiod},
+           given={Gareth},
+           given_i={G\bibinitperiod}}}%
+        {{hash=1ab16961e0de50711fa6bd9425f9b4a6}{%
+           family={Witten},
+           family_i={W\bibinitperiod},
+           given={Daniela},
+           given_i={D\bibinitperiod}}}%
+        {{hash=0cb8fe4210baa81c4b0e67913b4d2768}{%
+           family={Hastie},
+           family_i={H\bibinitperiod},
+           given={Trevor},
+           given_i={T\bibinitperiod}}}%
+        {{hash=88eea600247d798f8b2ce0b2dc614492}{%
+           family={Tibshirani},
+           family_i={T\bibinitperiod},
+           given={Robert},
+           given_i={R\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{da61646157a6be769f34984f5cb603b0}
+      \strng{fullhash}{da61646157a6be769f34984f5cb603b0}
+      \field{sortinit}{J}
+      \field{sortinithash}{ec3950a647c092421b9fcca6d819504a}
+      \field{labelyear}{2013}
+      \field{datelabelsource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{An introduction to statistical learning}
+      \field{volume}{112}
+      \field{year}{2013}
+    \endentry
+    \entry{kleiber2008applied}{book}{}
+      \name{author}{2}{}{%
+        {{hash=7bb1aed2f80d791ded7713d375bc4a5f}{%
+           family={Kleiber},
+           family_i={K\bibinitperiod},
+           given={Christian},
+           given_i={C\bibinitperiod}}}%
+        {{hash=9b2b213ce13e040cff6fc8714922a812}{%
+           family={Zeileis},
+           family_i={Z\bibinitperiod},
+           given={Achim},
+           given_i={A\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Springer Science \& Business Media}%
+      }
+      \strng{namehash}{608b9a39ffeab4adf9c51b66aa27ad45}
+      \strng{fullhash}{608b9a39ffeab4adf9c51b66aa27ad45}
+      \field{sortinit}{K}
+      \field{sortinithash}{a7d5b3aec5a0890aae7baf85a209abfc}
+      \field{labelyear}{2008}
+      \field{datelabelsource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Applied econometrics with R}
+      \field{year}{2008}
+    \endentry
+    \entry{shumway2006time}{book}{}
+      \name{author}{2}{}{%
+        {{hash=36bc5425259c8aefe1e50c64edb2ff4f}{%
+           family={Shumway},
+           family_i={S\bibinitperiod},
+           given={Robert\bibnamedelima H},
+           given_i={R\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+        {{hash=ab38ee0c09013f077cdbc4ec5041babe}{%
+           family={Stoffer},
+           family_i={S\bibinitperiod},
+           given={David\bibnamedelima S},
+           given_i={D\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Springer Science \& Business Media}%
+      }
+      \strng{namehash}{758e2040436aa82da10f485e04de588d}
+      \strng{fullhash}{758e2040436aa82da10f485e04de588d}
+      \field{sortinit}{S}
+      \field{sortinithash}{fd1e7c5ab79596b13dbbb67f8d70fb5a}
+      \field{labelyear}{2006}
+      \field{datelabelsource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Time series analysis and its applications: with R examples}
+      \field{year}{2006}
+    \endentry
+    \entry{wooldridge2010econometric}{book}{}
+      \name{author}{1}{}{%
+        {{hash=a4ab0dbe03e0668bf780bbfc5c39ad4c}{%
+           family={Wooldridge},
+           family_i={W\bibinitperiod},
+           given={Jeffrey\bibnamedelima M},
+           given_i={J\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {MIT press}%
+      }
+      \strng{namehash}{a4ab0dbe03e0668bf780bbfc5c39ad4c}
+      \strng{fullhash}{a4ab0dbe03e0668bf780bbfc5c39ad4c}
+      \field{sortinit}{W}
+      \field{sortinithash}{99e3ba1b3f78bb6f073e7fa7ac11636b}
+      \field{labelyear}{2010}
+      \field{datelabelsource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Econometric analysis of cross section and panel data}
+      \field{year}{2010}
+    \endentry
+  \endsortlist
+\endrefsection
+\endinput
+
