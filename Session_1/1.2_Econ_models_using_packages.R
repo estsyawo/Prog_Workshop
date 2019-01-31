@@ -1,14 +1,4 @@
-#============================================================================>
-# 1.2 Econometric models using R packages
-#============================================================================>
-# R is rich in packages contributed by individuals from all over the world. R
-# packages comprise a set of functions executing tasks more or less related. 
-# R packages are easy to write and they offer an ordered way of access
-
-#============================================================================>
-## Installing and using R packages
-
-# Command line code usable at the console to install a package is
+#====onsole to install a package is
 # install.packages("package name") 
 
 # Let us install the package AER - You need internet connection for this step
@@ -95,6 +85,7 @@ ape_p
 swiss_logit <- glm(participation ~ . + I(age^2),
                     data = SwissLabor, family = binomial(link = "logit"))
 summary(swiss_logit)
+
 favl <- mean(dlogis(predict(swiss_logit, type = "link")))
 ape_l = favl * coef(swiss_logit) # these give the average partial effects
 ape_l

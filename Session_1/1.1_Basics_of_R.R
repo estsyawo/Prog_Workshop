@@ -42,10 +42,11 @@ v[c(2,4)] # 2nd and 4th arguments of v
 # Create a  2 x 2 matrix m
 
 (m = matrix(c(3,-4.2,-7.1,0.95),nrow=2,ncol=2))
+c(m)
 # what does ( ) around code do?
 #--------------------------------------------->
 # Fill matrix by rows; default is by column
-(m = matrix(1:6, nrow=2, byrow=T))
+(m = matrix(1:6, nrow=2, byrow=TRUE))
 #--------------------------------------------->
 # Index 2 row
 m[2,]
@@ -55,6 +56,7 @@ m[,3]
 #--------------------------------------------->
 # (2,3)'th element of the matrix m
 m[2,3]
+m[2,c(2,3)]
 #--------------------------------------------->
 # Arithmetic operations on Matrices
 m-2
@@ -104,11 +106,15 @@ s = c("Kofi","Kojo","Ziggy")
 L = list(sc=z,v1=v,v2=w,m=m,M1=M1,M2=M2,M3=M3,s=s)
 L
 # Access elements of list L (either way works)
+length(L)
 L$sc
 L[[1]]
 
+dim(L[[7]])
+
 L$s
 L[[8]]
+L[[8]][1]
 
 L$M1
 L[[5]]
@@ -125,6 +131,7 @@ nr = dim(dat)[[1]] # extract number of rows
 nc = dim(dat)[[2]] # extract number of columns
 nr
 nc
+
 #--------------------------------------------->
 ## Manipulating the data set
 # create a matrix of two columns age and experience
@@ -134,7 +141,8 @@ xx = as.matrix(cbind(dat$age,dat$experience))
 eI = (1:floor(nr/2))*2 # even indices; 
 head(eI)
 tail(eI)
-
+head(dat)
+tail(dat)
 #what are the functions floor(), head(), and tail() doing?
 
 eDat<- cbind(dat$y[eI],xx[eI,]) # subset even-indexed observations of y and xx
@@ -204,7 +212,7 @@ w==v # check element-wise equality
 
 # These statements enable us to carry out a task only if conditions are 
 #  satisfied.
-i=3
+i=1
 if(w[i]<0){
   print(paste(w[i],"is a negative number"))
 }else if(w[i]>0){
@@ -270,16 +278,31 @@ x=0
 n=0
 set.seed(333) 
 # set seed when using random number generation for reproducibility of results
-while (x <= 10) {
+while(x <= 10) {
   n=n+1
   x=x+rnorm(1,mean=.5,sd=1)
   }
 
 print(paste ("n = ", n, ", x = ",round(x,2) )) #print out results
 
+#--------------------------------------------->
 # Exercise: Use a while loop to search on the interval [-2,4] for the maximum 
 # of f(x) = -(x-1)^2. 
 # Use increments of 0.001
+
+df = 10
+x = -2
+fx1 = -(x-1)^2
+n = 0
+while(df>0){
+  n=n+1
+  x = x + 0.001
+  fx2 = -(x-1)^2
+  df = fx2-fx1
+  fx1=fx2
+}
+x-0.001
+n-1
 
 #============================================================================>
 ## User defined functions in R
@@ -292,9 +315,10 @@ print(paste ("n = ", n, ", x = ",round(x,2) )) #print out results
 # The result of the function will be the last evaluated expression, unless 
 # return(function value) is used 
 
-# Here’s a simple function that calculates the first three powers of a vector 
+# Here is a simple function that calculates the first three powers of a vector 
 # and arranges the result as a matrix.
 #--------------------------------------------->
+
 powers = function(x) {
   matrix(c(x,x^2,x^3),nrow=length(x),ncol=3)
   }
@@ -310,6 +334,10 @@ CDP(200,40)
 
 # Exercise: code the following function: f(x) = -(x-1)^2. Plot this function using
 # the curve() function over the interval [-2,4]
+
+f = function(x) -(x-1)^2
+curve(f,-2,4)
+
 #--------------------------------------------->
 # A complicated example:
 # A function to compute OLS results
@@ -330,13 +358,13 @@ OLS<- function(y,x){
   t.stat = m[1,]/m[2,] # compute t statistics
   pval = 2*(1-pt(abs(t.stat),df)) #p values taken from the t distribution
   m[c(3,4), ] <- rbind(t.stat,pval) # store t-stats and p-values in 3rd and 4th rows
-  dimnames(m)[[1]]<- c("estimate", "std. error","t value","p value")
+  dimnames(m)[[1]]<- c("estimate", "std. error","t stat","p value")
   # label the rows
   return(t(m))
 }
 
 # Example: 
-reg<-OLS(y=dat$nonwife,x=xx)
+reg<- OLS(y=dat$nonwife,x=xx)
 reg
 round(reg,digits = 4) # round to 4 decimal places
 
@@ -376,11 +404,11 @@ piecefn<- function(x){
   }else if(x>2){
     y=(x-2)^3
   }else{
-    y = 0
   }
   return(y)
 }
 
+    y = 0
 piecefn=Vectorize(piecefn) # vectorize the function. why?
 curve(piecefn,from = -4,to=10) #plot the curve
 piecefn(-3)
@@ -408,7 +436,7 @@ set.seed(40) ; (x = runif(10))
 # Make 10 000 draws from the normal distribution, mean 1, standard deviation 1
 set.seed(40) ; x = rnorm(10000,mean=1,sd=2)
 # Make a density plot
-plot(density(x),main = "kernel density plot of x~N(1,2)")
+plot(density(x), main = "kernel density plot of x~N(1,2)")
 #--------------------------------------------->
 # Make 10 000 draws from the beta distribution
 set.seed(40)
