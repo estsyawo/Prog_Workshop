@@ -15,9 +15,10 @@ A
 set.seed(3)
 B = runif(4)
 B
-solve(A,B) #solve for the unkowns x
+solve(A,B) #solve for the unkowns x in Ax=B
 
 A%*%solve(A,B) # Should recover b
+
 #============================================================================>
 # Roots of a polynomial
 
@@ -160,7 +161,7 @@ grad(f, 1, method = "complex")
 # grad() for multivariate functions
 
 # Let us compute the gradient of the likelihood function at c(rep(1,4))
-# If not in memory, refer to 1.1 and run the function like()
+# If not in memory, refer to 1.1 and run the function like() from session 1.1
 
 # Gradient of likelihood function like()
 lfun<- function(pars) like(y=dat$nonwife,x=xx,pars)#define as function of pars
@@ -215,10 +216,10 @@ f = function(x) exp(-x) * cos(x)
 # The integrand function needs to be vectorized, otherwise one will get 
 # an error message, e.g., with the following nonnegative function:
 
-f1 = function(x) max(0, x)
-integrate(f1, -1, 1)
+f1 = function(x){ max(0, x)}
+integrate(f1, -1, 1) # why?
 
-# now vectorize
+# now vectorize the function
 f1=Vectorize(f1)
 integrate(f1, -1, 1)
 curve(f1,-1,1)
@@ -297,7 +298,7 @@ optimize(function(x) x*(20-2*x)*(16-2*x), c(0,8), maximum=T)
 W = function(x) x*(20-2*x)*(16-2*x)
 curve(W,0,8)
 opt<-optimize(W,c(2,4),maximum = T)
-abline(v=opt$maximum)
+points(opt$maximum,opt$objective)
 
 #Consider next the use of optimize with the function
 f = function(x) x*sin(4*x)
@@ -354,9 +355,47 @@ optim(c(.5,.5),f,hessian = T)
 optp<-optim(par=c(rep(0,3),2),fn=like,y=dat$nonwife,x=xx,
            control=list(fnscale=-1),hessian = T)
 optp
+
+# compare with the lm outcome:
+summary(lm(dat$nonwife~xx))
 # Because the problem is a maximisation problem, we use 
 # control=list(fnscale=-1), otherwise, we return a negative function value
 # and use minimisation.
+
+#--------------------------------------------------------------------
+# Estimating parameters of a CES Production function 
+# Q = z*(a*K^r + (1-a)*L^r)^(1/r) # z,a,r are parameters
+
+# Let us simulate some data on labour (L) and capital (K)
+set.seed(14)
+L = rpois(n=300,lambda=8)
+K = rbeta(300,2,4)*15
+summary(L); summary(K)
+
+# set parameters to be recovered in estimation
+a = 0.4; r = 2
+Q = 3*(a*K^r + (1-a)*L^r)^(1/r) # generate output
+summary(Q)
+
+# Estimation by non-linear least squares, assuming additive errors:
+
+# Taking the log of the function and and simplifying obtains:
+
+# (logQ - logL) = logF  + (1/r)*log(1 + a((K/L)^r-1))
+
+fnCES = function(pars,Q,L,K){
+  lF = pars[1]; r = pars[2]; a = pars[3]
+  sum((log(Q)-log(L)-lF - (1/r)*log(1 + a*((K/L)^r-1)))^2)
+}
+
+fnCES(pars = c(1,1,1),Q=Q,L=L,K=K) #test function
+
+#minimise the sum of squares:
+
+ans = optim(par = c(0,1,1),fn=fnCES,Q=Q,L=L,K=K,hessian = TRUE)
+# check values
+F.est=exp(ans$par[1]); r.est=ans$par[2]; a.est = ans$par[3]
+rbind(c(F.est,r.est,a.est),c(3,r,a)) #estimates on first row, true values on the second
 
 
 #============================================================================>

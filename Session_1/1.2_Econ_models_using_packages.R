@@ -2,7 +2,7 @@
 # install.packages("package name") 
 
 # Let us install the package AER - You need internet connection for this step
-install.packages("AER")
+# install.packages("AER")
 
 # Let us load the package into memory
 library("AER")
@@ -121,7 +121,7 @@ summary(rd_nb)
 
 # compare poisson and negative binomial results:
 rbind(rd_pois$coefficients,rd_nb$coefficients)
-# observations?
+# what do you observe ?
 
 #============================================================================>
 ## Quantile Regression
