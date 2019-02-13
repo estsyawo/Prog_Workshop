@@ -157,8 +157,8 @@ data("Journals")
 journals <- Journals[, c("subs", "price")]
 journals$citeprice <- Journals$price/Journals$citations
 jour_lm <- lm(log(subs) ~ log(citeprice), data = journals)
-
-# Let us write a function to bootstrap
+bootstrap
+# Let us write a function to 
 
 refit <- function(data, i) coef(lm(log(subs) ~ log(citeprice), data = data[i,]))
 

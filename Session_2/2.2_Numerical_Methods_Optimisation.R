@@ -29,6 +29,7 @@ polyroot(c(1, 2i, 3-7i)) # R recognises undefined i as complex polynomial
 # Roots of a real polynomial 
 # f(x)=-6x - 7x^2 + x^4
 rt=polyroot(c(0, -6, -7, 0, 1))
+rt
 
 f = function(x) -6*x - 7*x^2 + x^4
 f(0); f(-1); f(2)
