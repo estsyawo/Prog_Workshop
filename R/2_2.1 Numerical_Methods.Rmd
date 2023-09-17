@@ -1,0 +1,380 @@
+---
+title: "Numerical Methods in Economics"
+author: "Emmanuel S. Tsyawo"
+date: "10/16/2021"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    theme: united
+---
+\newpage
+Numerical methods are a key part of computations used in Economics, Mathematics, Statistics among other quantitative fields. Numerical methods to be considered in this section include solving systems of linear & non-linear equations, derivatives, integrals, finding the zeroes of a function, and matrix decompositions.
+
+The following packages are going to be needed: ```expm```,```Matrix```,```rootSolve```, ```numDeriv```, and ```pracma```. Ensure they are installed.
+
+# Matrix Operations
+
+## Systems of linear equations: matrix solve
+
+The equations can be formulated as $AX = B$ where $A$ is $m\times m$, and $B$  is $m\times 1$. The goal is to obtain a vector $X$ which solves the system of equations.
+
+**Example 1**
+```{r}
+options(digits=3) #round results to three decimal places
+set.seed(3) #set seed for reproducibility
+A = matrix(runif(16), nrow = 4) #generate matrix A
+A
+set.seed(3)
+B = runif(4)
+B
+```
+**Solution**
+```{r}
+solve(A,B) #solve for the unkowns x in Ax=B
+
+A%*%solve(A,B) # Should recover B
+B #compare
+```
+
+**Example 2**
+Solve for the vector $X=(x_1,x_2,x_3)$ which solves the following system of equations.
+
+\begin{align*}
+2x_1+2x_2-x_3&=2\\
+x_1-3x_2+x_3&=0\\
+3x_1+4x_2-x_3&=1
+\end{align*}
+
+**Solution**
+A first step is to convert the system into matrix notation $AX=B$ and then use the ```solve(A,B)``` function.
+```{r}
+(A=matrix(c(2,1,3,2,-3,4,-1,1,-1),ncol = 3))
+(B=c(2,0,1))
+(X=solve(A,B))# the solution is given by X
+MASS::fractions(X) #display results as fractions using the fractions function in the R package MASS
+```
+
+
+## Matrix decompositions
+These have applicability in econometrics, statistics, etc for matrix operations.
+
+### Eigendecomposition
+
+This decomposition has the form $A = VDV^{-1}$ where $A$ is a $m\times m$ square matrix, $D$ is a diagonal matrix with the eigen-values of $A$ and the columns of $V$ of contain the eigen-vectors.
+```{r}
+options(digits=3) #set the number of decimal places to display
+M = matrix(c(2,-1,0,-1,2,-1,0,-1,2), nrow=3, byrow=TRUE)
+eigen(M)
+```
+
+### Singular value decomposition (SVD). 
+
+The decomposition has the form $A = UDV$, where $D$ is a non-negative diagonal matrix. The SVD is a generalisation of the eigendecomposition to an $m\times n$ matrix.
+```{r}
+set.seed(13)
+A = matrix(rnorm(30), nrow=6)
+svd(A)
+```
+
+### LU decomposition
+The LU decomposition factors a square matrix $A=LU$ into a lower triangular matrix $L$ and an upper triangular matrix $U$.
+```{r}
+require(Matrix)
+options(digits=3)
+mm = exp(-as.matrix(dist(1:5)))
+mm
+lum = lu(mm) #take the LU decomposition and save as object lum
+str(lum) #view its structure
+elu = expand(lum) #expand to view elements of object lum
+elu
+elu$L%*%elu$U==mm #verify equality
+```
+
+### Choleski decomposition
+This is a special case of the LU decomposition for real, symmetric, positive-definite matrices. 
+```{r}
+M = matrix(c(2,-1,0,-1,2,-1,0,-1,2), nrow=3, byrow=TRUE)
+M.U=chol(M) #obtains an upper diagonal matrix
+t(M.U)%*%M.U #L is the transpose of U
+M #compare for equality
+```
+
+### Matrix Square Root decomposition
+The decomposition is $A=A^{1/2}A^{1/2}$ where $A^{1/2}$ is a symmetric matrix. Note that $A^{1/2}$ is neither lower triangular nor upper triangular.
+```{r}
+require(expm)
+m <- diag(2)
+sqrtm(m) == m # TRUE
+
+ms = 0.5^as.matrix(dist(1:4)) #generate a positive definite matrix
+ms
+ms.5 = sqrtm(ms) #compute the matrix square root
+ms.5
+ms
+ms.5%*%ms.5 #compare for equality
+```
+
+# Systems of Non-linear Equations
+Sometimes, a given system of equations may be non-linear in the unknowns. Typical algorithms used for the system of linear equations no longer apply. The ```multiroot``` function in the ```rootSolve``` is useful in solving sytems of non-linear equations in R.
+
+**Example 1**
+
+Consider the following system:
+\begin{align*}
+s^3 -3s^2 + 4\rho &=0\\
+\rho-0.96&=0
+\end{align*}
+
+**Solution**
+A first step is to write a vector-valued function of the system.
+```{r}
+rho=0.96 #already given in the second equation
+f = function(s){
+  s^3 - 3*s^2 +4*rho
+}
+f(0) #test the function
+curve(f,0,3); abline(h=0) #plot the curve
+```
+
+Thus we search for roots between 1.5 and 2.5. (See figure in plot)
+```{r}
+require(rootSolve)
+options(digits=3)
+multiroot(f, c(1.5,2.5))
+```
+
+**Example 2**
+Solve for $X=(x_1,x_2)$ in the following system of non-linear equations.
+\begin{align*} 
+10x_1+3x_2^2-3&=0\\
+x_1^2-\exp(x_2)-2&=0
+\end{align*}
+
+**Solution**
+First write the vector-valued function, then solve the system.
+```{r}
+require(rootSolve)
+model = function(x) c(10*x[1]+3*x[2]^2-3,x[1]^2 -exp(x[2]) -2)
+(ss = multiroot(model,c(1,1)))
+```
+
+# Numerical Differentiation
+
+Numerical differentiation is particularly useful when taking analytical derivatives are difficult or tedious. They are also a good check for analytical derivatives. 
+
+## Definition-based numerical derivatives
+Consider the following function $f(x) = x^3\sin(x/3)\log(\sqrt{x})$.
+Let us begin by coding this function.
+```{r}
+f = function(x) x^3 * sin(x/3) * log(sqrt(x))
+curve(f,1/10,90) #plot the function
+```
+
+Using the definition of derivatives $f'(x_o)=\lim_{h\rightarrow 0}\frac{f(x_o+h)-f(x_o)}{h}$. Choose a small fixed number, say $\epsilon=10^{-5}$, then the numerical derivative as a function of function $f$, point $x_o$, and $\epsilon$ is  
+```{r}
+df = function(f,x0,eps) (f(x0+eps)-f(x0))/eps
+```
+**NB**: ```df()``` is a function which takes another function ```f()``` as input.
+
+Set values and take the derivative.
+```{r}
+df(f,x0=1,eps = 1e-5)
+```
+With a positive $\epsilon$, this is a **forward derivative**.
+
+```{r}
+df(f,x0=1,eps = -1e-5)
+```
+With a negative $\epsilon$, this is a **backward derivative**. Notice that both forward and backward derivatives yield the same value.
+
+A third approach is to average the forward and backward derivatives. This delivers the central difference formula
+```{r}
+dfc = function(f,x0,eps) {(f(x0+eps)-f(x0-eps))/(2*eps)}
+dfc(f,x0=1,eps =1e-05)
+```
+
+
+## Numerical differentiation using the ```numDeriv``` package
+The ```numDeriv``` package provides stable and powerful numerical tools for taking numerical derivatives.
+
+### Derivatives with univariate functions.
+Let us use the ```grad()``` function to take the same derivative as in the preceding sub-section.
+```{r}
+require(numDeriv)
+options(digits=16)
+
+# try different methods
+grad(f, 1, method = "simple")
+
+grad(f, 1, method = "Richardson")
+
+grad(f, 1, method = "complex")
+```
+
+
+### Gradients
+
+**Example 1**
+Let us consider a real-data example where we compute the gradient of the log-likelihood function of the normal regression model at c(rep(1,4)) from *Session 1.1*. First load the data set if it is not already loaded.
+```{r}
+dat<- read.csv("dat.csv",header = T,sep = " ")
+```
+For ease of reference, the log-likelihood function is repeated here.
+```{r}
+llike_lnorm<- function(pars,Y,X){ #pars is the vector [beta,sigma]
+  N = length(Y) #obtain number of observations
+  X = as.matrix(cbind(1,X)) # include 1's for the intercept term
+  k=ncol(X) # number of parameters to estimate
+  np = length(pars) #obtain number of parameters (including sigma)
+  if(np!=(k+1)){stop("Not enough parameters.")} #ensure the number of parameters is correct
+  beta = matrix(pars[-np],ncol = 1) #obtain column vector of slope parameters beta
+  sig2 = pars[np] #sigma^2
+  U<- Y - X%*%beta #compute U
+  ll = -(N/2)*log(2*pi*sig2) -sum(U^2)/(2*sig2)#obtain log joint likelihood
+  return(ll)
+}
+```
+Test the function at the given input value.
+```{r}
+llike_lnorm(pars = rep(1,5),Y=dat$nonwife,X=dat[c("age","education","experience")])
+```
+Compute the gradient at input value. Recall to supply other inputs viz. ```Y``` and ```X```.
+```{r}
+grad(func = llike_lnorm,rep(1,5),Y=dat$nonwife,X=dat[c("age","education","experience")])
+```
+
+**Example 2**
+Consider the function $f(X)=2x_1+3x_2^2-\sin(x_3)$. First code the function.
+```{r}
+f = function(x){2*x[1] + 3*x[2]^2 - sin(x[3])}
+round(grad(f,c(1,1,0)),3) # gradient of f at c(1,1,0)
+```
+
+### The Jacobian
+Consider a vector valued function $f:\mathbb{R}^m \mapsto \mathbb{R}^n$, $f(x)$. How do we compute the $m\times n$ Jacobian $$
+\mathbf{J}_f(x)=\begin{bmatrix} \frac{\partial f_1(x)}{\partial x_1}& \ldots & \frac{\partial f_1(x)}{\partial x_n} \\
+\vdots & \ddots & \vdots \\
+\frac{\partial f_m(x)}{\partial x_1} & \ldots & \frac{\partial f_m(x)}{\partial x_n}
+\end{bmatrix}?
+$$
+
+**Example**
+$f(x)=[x_1^2+2x_2^2-3,\ \cos(\pi x_1/2)-5x_2^3]$.
+Compute the Jacobian of the system of equations
+```{r}
+require(numDeriv)
+f = function(x) c(x[1]^2 + 2*x[2]^2 - 3, 
+                  cos(pi*x[1]/2) -5*x[2]^3)
+jacobian(f, c(2,1))
+```
+
+### The Hessian
+The hessian matrix may be thought of as the jacobian of the gradient of the function. 
+
+**Example 1**
+Compute the hessian of $f$ at $[1,1,0]$.
+```{r}
+f = function(x){2*x[1] + 3*x[2]^2 - sin(x[3])}
+hessian(f,c(1,1,0))
+```
+
+**Example 2**
+Back to the likelihood example.
+```{r}
+options(digits = 5) #set number of digits to display
+hessian(func = llike_lnorm,rep(1,5),Y=dat$nonwife,X=dat[c("age","education","experience")])
+```
+
+### Higher-order derivatives
+For higher-order derivatives, the ```fderiv``` function in the ```pracma``` package is well suited.
+
+```{r}
+require(pracma)
+
+f = function(x) x^3 * sin(x/3) * log(sqrt(x))
+x = 1:4
+fderiv(f,x) # 1st derivative at 4 points
+fderiv(f,x,n=2,h=1e-5) # 2nd derivative at 4 points
+```
+
+
+# Numerical Integration
+While some integrals can be difficult to take, others simply do not have analytical expressions. This is where numerical integration comes in.
+
+## Finite integrals
+**Example 1**
+Consider the function $f(x)=\cos(x)\exp(-x)$ and the integral $q=\int_{0}^{\pi}f(x)dx$. Just as in the case of numerical derivatives, we need to write the function first.
+```{r}
+f = function(x) exp(-x) * cos(x)
+```
+Now let us take the integral
+```{r}
+( q = integrate(f, 0, pi) )
+```
+
+**Example 2**
+The integrand function needs to be vectorized, otherwise one will get an error message, e.g., with the following nonnegative function:
+```{r}
+f1 = function(x){ max(0, x)}
+#integrate(f1, -1, 1) # why?
+```
+Now vectorize the function
+```{r}
+f1=Vectorize(f1)
+integrate(f1, -1, 1)
+curve(f1,-1,1)
+```
+
+**Example 3**
+Discretised functions occur when the function is not explicitly known, but is represented by a number of discrete points. Consider the following example.
+```{r}
+require(pracma)
+f = function(x) exp(-x) * cos(x)
+xs = seq(0, pi, length.out = 101) # what does the function seq() do?
+ys = f(xs)
+plot(xs,ys,type = "l")
+trapz(xs, ys)
+```
+Use the integrate() with the explicit form of the function for comparison.
+```{r}
+integrate(f,0,pi)
+```
+
+
+## Integration over the entire real line
+**Example 1**
+Consider the Gaussian function $f(x)=\exp(-x^2/2)$. We consider the integral $q=\int_{-\infty}^{\infty}f(x)dx$ which is known to equal $\sqrt{2\pi}$. How good is a numerical integral?
+```{r}
+fgauss = function(t) exp(-t^2/2) # specify a function
+( q = integrate(fgauss, -Inf, Inf) )
+q$value / sqrt(2*pi) # is our approximation good enough?
+```
+
+**Example 2**
+Numerical integrals can be useful in computing moments or correlations which might be hard to deal with analytically. Although the first moment of the $Cauchy(0,1)$ does not exist, its fractional moment does exist. Analytically evaluating $\mathbb{E}[|X|^{1/2}]=\int_{-\infty}^{\infty}\frac{|x|^{1/2}}{\pi(1+x^2)}dx$ for $X\sim Cauchy(0,1)$ might seem a difficult task. Let us do so using a numerical integral. First, code the integrand $f(x)=\frac{|x|^{1/2}}{\pi(1+x^2)}$.
+```{r}
+f=function(x){sqrt(abs(x))/(pi*(1+x^2))}
+curve(f,-8,8) #visualise the integrand
+integrate(f,-Inf,Inf) 
+```
+The numerical integral pretty much coincides with the analytical solution $\mathbb{E}[|X|^{1/2}]=\sqrt{2}\approx 1.414213562373095$.
+
+## Monte Carlo and sparse grid integration
+Another approach to integration uses Monte Carlo simulation Consider the example $\mathbb{E}[|X|^{1/2}]$ where $X\sim Cauchy(0,1)$. The strong law of large numbers can be used to justify this method.
+```{r}
+set.seed(21)
+X = rcauchy(1e6)
+mean(sqrt(abs(X)))
+```
+How good is this approximation?
+
+
+# Exercises
+
+
+
+
+
+

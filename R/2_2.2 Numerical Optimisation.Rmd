@@ -1,0 +1,287 @@
+---
+title: "Numerical Optimisation"
+author: "Emmanuel S. Tsyawo"
+date: "10/16/2021"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    theme: united
+---
+\newpage
+
+Several estimators in Econometrics, e.g., Ordinary Least Squares, Maximum Likelihood, and GMM can be cast as optimisers of given criteria. These estimators may not always have closed-form expressions and do usually require numerical optimisation techniques. This explains why some emphasis ought to be put on numerical optimisation.
+
+Luckily, numerical algorithms for optimisation are already built into R. What matters is to write a correct function for the criterion to be optimised.
+
+# One-dimensional Optimisation
+The base R function for finding minima (the default) or maxima of univariate functions is ```optimize()``` or ```optimise()```. 
+
+Let us quickly look up the documentation.
+```{r}
+?optimize
+```
+
+**Example 1**
+Consider the following anonymous function $x^2(20-2x)(16-2x)$ which we wish to maximise.
+```{r}
+optimize(function(x) x^2*(20-2*x)*(16-2*x), c(0,8), maximum=T)
+```
+Can you plot the curve?
+```{r}
+W = function(x) x^2*(20-2*x)*(16-2*x)
+curve(W,0,8)
+```
+
+**Example 2**
+Consider next the use of ```optimize()``` to minimise the function $f(x)=x\sin(4x)$ over the interval $[0,3]$. Let us begin by coding and plotting the function.
+```{r}
+f = function(x) x*sin(4*x)
+curve(f,0,3)
+```
+
+Applying optimize() in the simplest way yields
+```{r}
+optimize(f,c(0,3))
+```
+Because we have a plot of the function, we can see that we must exclude the local minimum from the lower and upper endpoints of the search interval.
+```{r}
+(op<-optimize(f,c(1.5,3)))
+```
+
+To find the global maximum we enter
+```{r}
+optimize(f,c(1,3),maximum=TRUE)
+```
+
+**Example 3**
+Suppose a utility function in wealth $u(w) = -(w-1000)^2$. Plot a curve of the utility function over the interval $[0,2000]$, numerically compute the level of wealth that maximises utility, and give the maximum utility attainable.
+
+```{r}
+# Code the utility function
+U = function(w) -((w-1000)^2)
+# Plot the utility function
+curve(U,0,2000)
+# What is the level of wealth that maximises utility?
+optimize(U,c(0,2000),maximum = T)
+```
+
+# Multi-dimensional optimisation with optim()
+
+Optimisation in more than one dimension is harder to visualise and to compute. In R, the built-in function for mimisation is ```optim()```. Let us look up its documentation.
+```{r}
+?optim
+```
+The surface defined by a two-dimensional function may be visualised by the ```persp()``` function in R.
+
+**Example 1**
+Consider the bivariate function $f(x_1,x_2) = \frac{1}{x_1}+\frac{1}{x_2}+\frac{1-x_2}{x_2(1-x_1)}+\frac{1}{(1-x_1)(1-x_2)}$.
+```{r}
+x1 = x2 = seq(.1,.9,.02) #create a grid of values over which to evaluate the function.
+z = outer(x1,x2,FUN=function(x1,x2) 1/x1 + 1/x2 +
+            (1-x2)/(x2*(1-x1)) + 1/((1-x1)*(1-x2)))
+persp(x1,x2,z,theta=45,phi=0)
+```
+
+Code the function for minimisation,
+```{r}
+fn = function(x) {
+  x1 = x[1]
+  x2 = x[2]
+  return(1/x1 + 1/x2 + (1-x2)/(x2*(1-x1)) +
+           1/((1-x1)*(1-x2)))
+}
+```
+To minimize f with respect to $x_1$ and $x_2$, we run
+```{r}
+(opt.f=optim(c(.5,.5),fn,hessian = T))
+```
+It is good practice to examine the Hessian matrix at the minimiser to be sure a minimum is attained.
+```{r}
+eigen(opt.f$hessian)$values
+```
+Both eigen-values are positive; the Hessian is thus positive definite.
+
+**Example 2**
+Let us maximise our likelihood function of the normal linear regression model from Session 1.1.
+
+Let us load the data set. Ensure the working directory is set to the location of the data set.
+```{r}
+dat<- read.csv("dat.csv",header = T,sep = " ") # load data set
+```
+The log-likelihood is repeated here for convenience.
+```{r}
+llike_lnorm<- function(pars,Y,X){ #pars is the vector [beta,sigma]
+  N = length(Y) #obtain number of observations
+  X = as.matrix(cbind(1,X)) # include 1's for the intercept term
+  k=ncol(X) # number of parameters to estimate
+  np = length(pars) #obtain number of parameters (including sigma)
+  if(np!=(k+1)){stop("Not enough parameters.")} #ensure the number of parameters is correct
+  beta = matrix(pars[-np],ncol = 1) #obtain column vector of slope parameters beta
+  sig2 = pars[np] #sigma^2
+  U<- Y - X%*%beta #compute U
+  ll = -(N/2)*log(2*pi*sig2) -sum(U^2)/(2*sig2)#obtain log joint likelihood
+  return(ll)
+}
+```
+Let us maximise the log-likelihood function.
+
+```{r}
+optp<-optim(par=c(rep(0,4),2),fn=llike_lnorm,Y=dat$nonwife,
+              X=dat[c("age","education","experience")],control=list(fnscale=-1),
+              hessian = T)
+optp
+```
+Because the problem is a maximisation problem, we use ```control=list(fnscale=-1)``` option or we return a negative function value and use minimisation.
+
+Compare the MLE to the built-in OLS function ```lm()```.
+```{r}
+reg<- lm(nonwife~age + education + experience,data=dat)
+summary(reg)
+(sig2.OLS=mean(reg$residuals^2)) #estimate of sigma^2
+```
+The results are not close. What is wrong? Let us vary the starting values to see.
+```{r}
+start.v=c(-5,0.2,1.6,-0.3,110)
+optp1<-optim(par=start.v,fn=llike_lnorm,Y=dat$nonwife,
+              X=dat[c("age","education","experience")],control=list(fnscale=-1),
+              hessian = T)
+optp1
+```
+Compare OLS and ML parameter estimates
+```{r}
+res=rbind(c(reg$coefficients,sig2.OLS),optp1$par)
+row.names(res)=c("OLS","MLE"); colnames(res)[5]="Sigma2"
+res
+```
+
+Compare OLS and ML parameter standard errors
+```{r}
+stes=sqrt(rbind(diag(vcov(reg)),diag(-solve(optp1$hessian))[-5]))
+row.names(stes)=c("OLS","MLE")
+stes
+```
+Voilà! Both results are similar now. Lesson: we need to vary our starting values and choose the estimates that yield the smallest (largest) function value under minimsiation (maximisation).
+
+**Example 3**
+Estimating parameters of a CES Production function $Q = d(aK^r + (1-a)L^r)^{1/r}$ where $[a,d,r]$ is a vector of parameters. A first step is to derive an econometric structural model from the CES economic model by assuming a form of disturbance, e.g., in measurement of labour or capital. We assume multiplicative disturbances $\dot{Q} = d\exp(U)(aK^r + (1-a)L^r)^{1/r}$ where $U$ is a zero-mean random variable.
+
+Let us simulate data following the structural model.
+First, simulate some data on labour $L$ and capital $K$.
+```{r}
+n=1000
+set.seed(14)
+L = rpois(n=n,lambda=8) #quantity of labour sampled from the Poisson distribution
+K = rbeta(n,2,4)*15 #quantity of capital sampled from the beta distribution
+summary(L)
+summary(K)
+```
+Now, set parameters to be recovered in estimation $a=0.4$, $d=3$, and $ r=2 $.
+
+```{r}
+a = 0.4; r = 2; d = 3; set.seed(0)
+Q = d*exp(runif(n,-1,1))*(a*K^r + (1-a)*L^r)^(1/r) # generate output
+summary(Q)
+```
+
+Choice of estimator: non-linear least squares. Can you think of other appropriate estimators? Dividing through by $L$ and taking the log gives the following expression.
+\begin{align} 
+(\log(Q) - \log(L)) &= \log(d)  + \frac{1}{r}\log(1 + a((K/L)^r-1)) + U/L\\
+& = \alpha + \frac{1}{r}\log(1 + a((K/L)^r-1)) + \varepsilon
+\end{align}
+
+Let us code the criterion. Recall the criterion for non-linear least squares is $SS(\theta) = \sum_{i=1}^{n}\varepsilon_i(\theta)^2$.
+
+```{r}
+fnCES = function(pars,Q,L,K){
+  alf = pars[1]; r = pars[2]; a = pars[3] #assign parameter values
+  eps = log(Q)-log(L)-alf - (1/r)*log(1 + a*((K/L)^r-1)) 
+  sum(eps^2)
+}
+
+```
+It is good advice to test the function before plugging it into the minimiser ```optim()```.
+```{r}
+fnCES(pars = c(2,2,.2),Q=Q,L=L,K=K) #test function
+```
+Minimise the sum of squares:
+```{r}
+(ans = optim(par = c(1,2,.5),fn=fnCES,Q=Q,L=L,K=K,hessian = TRUE))
+# check values
+d.est=exp(ans$par[1]); r.est=ans$par[2]; a.est = ans$par[3]
+res.Q=rbind(c(d.est,r.est,a.est),c(d,r,a)) #estimates on first row, true values on the second
+colnames(res.Q)=c("d","r","a"); rownames(res.Q)=c("NLS","True")
+res.Q
+eigen(ans$hessian)$values #examine the eigen-values of the Hessian
+```
+
+# Constrained Optimisation
+
+Sometimes, optimisation problems do have (natural) bounds on the parameter support. E.g., regressions with restricted parameter spaces, constrained utility optimisation, etc.
+
+R has two packages, ```alabama``` and ```Rsolnp``` that implement the augmented Lagrange multiplier method for general nonlinear optimisation with both equality and inequality constraints.
+
+**Example 1**
+Consider this example with the ALABAMA package:
+\begin{align}
+\mathrm{min}_{x} \sin(x_1x_2+x_3) &\text{ subject to }\\
+& -x_1x_2^2 + x_1^2x_3^2-5 = 0 \\
+& x_1 - x_2 \geq 0\\
+& x_2 - x_3 \geq 0
+\end{align}
+
+```{r}
+f = function(x) sin(x[1]*x[2]+x[3]) # objective function
+
+heq = function(x) -x[1]*x[2]^2 + x[1]^2*x[3]^2 -5 # equality constraint
+
+hin = function(x) { # inequality constraint
+  h = rep(NA,2)
+  h[1] = x[1]-x[2] # set as non-negativity constraints
+  h[2] = x[2] -x[3]
+  h
+}
+
+p0 = c(3,2,1) # starting values for constrained optimisation
+require(alabama) # Also loads numDeriv package
+(ans = constrOptim.nl(par=p0, fn = f, heq=heq, hin = hin,control.outer = list(trace=FALSE)))
+```
+
+A more robust option from the ```alabama``` package is the ```auglag()``` function. It allows starting values that violate the inequality constraints.
+```
+p0 = c(1,2,3) # starting values for constrained optimisation
+(ans = constrOptim.nl(par=p0, fn = f, heq=heq, hin = hin)) 
+```
+Now try:
+```{r}
+(ans = auglag(par=p0, fn = f, heq=heq, hin = hin,control.outer = list(trace=FALSE))) 
+```
+
+**Example 2**
+Consider the following constrained utility maximisation problem 
+\begin{equation}
+u(c,m) = (c^r + (1.2m)^r)^{1/r} \text{subject to } c\geq 20,\ m\geq 20,\ \text{and } c + m \leq 100
+\end{equation}
+where $r = -4$.
+
+```{r}
+uF<- function(a) - (a[1]^(-4) + (1.2*a[2])^(-4))^(-0.25) # return negative fn value for minimisation
+p0=c(20,20) # starting values
+uF(p0) # test function value at starting values
+
+hin<- function(a){ #code inequality constraints and non-negativity conditions
+  h = rep(NA,3)
+  h[1]=a[1]-20
+  h[2]=a[2]-20
+  h[3]=100-a[1] - a[2] 
+  h
+}
+(opF<- auglag(par = p0,fn=uF,hin = hin,control.outer = list(trace=FALSE)))
+opF$par
+```
+
+
+
+
+

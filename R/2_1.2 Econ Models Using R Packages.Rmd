@@ -1,0 +1,208 @@
+---
+title: "Econ Models Using R Packages"
+author: "Emmanuel S. Tsyawo"
+date: "10/16/2021"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    theme: united
+---
+\newpage
+# Installing an R package
+
+R packages collect functions which are accessible for download and installation. This is a very convenient means of making programmes available to an entire community of users. 
+
+Let us install the package AER. You need internet connection for this step. Skip this step if you already have the package.
+```{r}
+#install.packages("AER")
+```
+
+# Ordinary Least Squares
+
+This is just a revision of 1.1. Let us reproduce the code here and take a closer look at our results. Recall, the essence lies in the interpretation/meaning of our results.
+
+A prototypical call of a linear regression looks like ```fm <- lm(formula, data, ...)```.
+
+## An example from the mroz data
+
+Outcome variable - nonwife income
+Exogenous variables - age, age^2, education, experience
+We allow for a quadratic term to allow for decreasing/increasing returns to age.
+
+Let us load the data set. Ensure the working directory is set to the location of the data set.
+```{r}
+dat<- read.csv("dat.csv",header = T,sep = " ") # load data set
+```
+Run OLS
+```{r}
+reg1<- lm(dat$nonwife~dat$age + I(dat$age^2)+dat$education+dat$experience)
+summary(reg1)
+```
+
+## An example from the AER package
+
+Let us load the package into memory
+```{r}
+library("AER")
+```
+
+Let us load data from the package
+```{r}
+data("Journals",package = "AER")
+names(Journals) #view variable names
+```
+Explore the data
+```{r}
+journals <- Journals[, c("subs", "price")] # create a data frame of two
+# variables subs, price
+journals$citeprice <- Journals$price/Journals$citations # generate new 
+# variable citeprice and add it to the data frame. Notice the $ sign
+summary(journals) # a summary of the data frame
+```
+The goal is to estimate the effect of the price per citation on the number of library subscriptions.
+```{r}
+plot(log(subs) ~ log(citeprice), data = journals) # visualise relationship between variables.
+```
+Run a linear regression
+```{r}
+jour_lm <- lm(log(subs) ~ log(citeprice), data = journals) # create regression object
+summary(jour_lm)
+```
+
+# Instrumental Variable (IV) Regression
+
+The example used is taken from the documentation in the ```ivreg()``` function of the ```AER``` package. To view the documentation of this function, type ```?ivreg``` into the console.
+
+Compute additional variables needed in the regression.
+```{r}
+data("CigarettesSW", package = "AER")
+CigarettesSW$rprice <- with(CigarettesSW, price/cpi)
+CigarettesSW$rincome <- with(CigarettesSW, income/population/cpi)
+CigarettesSW$tdiff <- with(CigarettesSW, (taxs - tax)/cpi)
+```
+
+The following runs a linear IV regression where ```tdiff``` and ```tax/cpi``` are used as excluded instruments for ```log(rprice)```.
+```{r}
+## model 
+fm <- ivreg(log(packs) ~ log(rprice) + log(rincome) | log(rincome) + tdiff + I(tax/cpi), data = CigarettesSW, subset = year == "1995")
+summary(fm)
+summary(fm, vcov = sandwich, df = Inf, diagnostics = TRUE) #use robust standard errors with model diagnostics
+```
+
+# Binary response models
+
+Binary response models are suitable for binary outcomes. Two popular choices include the Probit and Logit models. Like other non-linear models in general, parameter estimates are not directly interpretable or of interest to the researcher. 
+
+## Probit model
+
+We begin with a probit regression:
+```{r}
+data("SwissLabor") # load data from the AER package
+swiss_probit <- glm(participation ~ . + I(age^2),
+                   data = SwissLabor, family = binomial(link = "probit"))
+```
+The use of ```~.``` implies regress participation on all other variables in the 
+data set and a quadratic term of age.
+```{r}
+summary(swiss_probit) # summary of results
+```
+Visualisation (using a spinogram)
+```{r}
+plot(participation ~ age, data = SwissLabor, ylevels = 2:1)
+```
+By setting ylevels =   2:1, the order of participation levels is reversed, highlighting participation (rather than non-participation).
+
+Interpretation of results using the average partial effects. The $j$'th partial effect of the $i$'th observation is given by $PE_{ij}=\phi(X_i\beta)\times\beta_j$ where $\phi(\cdot)$ denotes the PDF of the standard normal distribution.
+```{r}
+favp <- mean(dnorm(predict(swiss_probit, type = "link")))
+ape_p = favp * coef(swiss_probit) # these give the average partial effects
+ape_p
+```
+**Exercise**:
+How would you calculate their standard errors and/or asymptotic distributions? 
+
+
+## Logit model
+
+Run the regression in the preceding section using the logit model.
+```{r}
+swiss_logit <- glm(participation ~ . + I(age^2),
+                    data = SwissLabor, family = binomial(link = "logit"))
+summary(swiss_logit)
+```
+Compute the average partial effect. The $j$'th partial effect of the $i$'th observation is given by $PE_j=\lambda(X_i\beta)\times\beta_j$ where $\lambda(\cdot)$ denotes the PDF of the logistic distribution.
+```{r}
+favl <- mean(dlogis(predict(swiss_logit, type = "link")))
+ape_l = favl * coef(swiss_logit) # these give the average partial effects
+ape_l
+```
+Compare average partial effects:
+```{r}
+rbind(ape_p,ape_l)
+```
+What do you say?
+
+# Count data models
+
+These models have count outcome variables, e.g., the number of items sold per day or the number of trips per month. Popular count data models include the Poisson and Negative-Binomial.
+
+## Poisson regression:
+We begin with the standard model for count data, a Poisson regression.
+
+First, let us load the data set.
+```{r}
+data("RecreationDemand") # load data from AER package
+```
+Fitting the model is as simple as
+```{r}
+rd_pois <- glm(trips ~ ., data = RecreationDemand,
+                   family = poisson)
+summary(rd_pois)
+```
+Can you interprete the above results?
+
+## Negative binomial regression
+
+In R, the function for the negative binomial model is provided in the ```MASS``` package (Venables and Ripley 2002). Let us re-run the count data regression using the negative binomial model.
+
+```{r}
+library("MASS") # this package is in-built. you don't need to install it
+rd_nb <- glm.nb(trips ~ ., data = RecreationDemand)
+summary(rd_nb)
+```
+Compare the Poisson and Negative-Binomial results:
+```{r}
+rbind(rd_pois$coefficients,rd_nb$coefficients)
+```
+Any observations ?
+
+# Quantile Regression
+
+Quantile regression generalises the Least Absolute Deviations (LAD) to arbitrary quantiles. This is particularly useful if the researcher is only interested in a sub-population characterised by its location (quantile) on the outcome distribution. E.g., what is the impact of a policy on the household consumption of households around the poverty line.
+
+The package to use is ```quantreg```. 
+```{r}
+#install.packages("quantreg") #install this package if it is not already available.
+require("quantreg") # the command require() plays the same role as library()
+```
+
+To get documentation on a function ```fun``` in a package that is installed, type ```?fun``` into the console.
+Look up the function ```rq``` in ```quantreg``` package.
+```{r}
+?rq
+```
+Skim through the documentation and run the examples.
+```{r}
+data(stackloss)
+summary(rq(stack.loss ~ stack.x,tau=.5))  # LAD is a special case of quantreg
+summary(rq(stack.loss ~ stack.x,tau=.25))
+```
+What is the interpretation of your results?
+
+
+
+
+
+
